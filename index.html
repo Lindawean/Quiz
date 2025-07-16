@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quiz Kahoot Style</title>
+<style>
+  body { background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: #fff; font-family: 'Comic Sans MS', sans-serif; text-align: center; margin:0; padding:20px; }
+  .question-card { background: rgba(0,0,0,0.5); padding:20px; border-radius:20px; box-shadow:0 0 20px rgba(0,0,0,0.4); max-width:700px; margin:auto; }
+  .question-img { max-width:100%; height:auto; margin:15px 0; border-radius:10px; }
+  .answer-btn { display:inline-block; width:40%; margin:10px; padding:15px; font-size:18px; border:none; border-radius:15px; background:#ff4081; color:#fff; cursor:pointer; transition: background 0.3s; }
+  .answer-btn:hover { background:#f50057; }
+  .timer { font-size:24px; margin-bottom:10px; }
+  .podium { display:flex; justify-content:center; margin-top:20px; }
+  .podium div { background:#fff; color:#000; border-radius:10px; padding:10px; margin:5px; min-width:80px; }
+</style>
+</head>
+<body>
+<div class="question-card" id="quiz-container">
+  <div class="timer" id="timer"></div>
+  <h2 id="question-text"></h2>
+  <img id="question-img" class="question-img" src="" alt="" style="display:none;" />
+  <div id="answers"></div>
+</div>
+
+<script>
+// Exemple de questions
+const questions = [
+  { text: "Quelle est la capitale de la France ?", image:"", answers:["Paris","Lyon","Marseille","Toulouse"], correct:0 },
+  { text: "Quel animal est sur cette image ?", image:"https://via.placeholder.com/400x200.png?text=Exemple", answers:["Chien","Chat","Lapin","Cheval"], correct:1 }
+];
+
+let currentQuestion=0; let score=0; let timer; let timeLeft=10;
+let scores=[{name:"Alice",score:2},{name:"Bob",score:1},{name:"Charlie",score:1}]; // exemple podium
+
+function showQuestion(){
+ clearInterval(timer); timeLeft=10;
+ document.getElementById("timer").textContent=`⏱️ ${timeLeft}s`;
+ timer=setInterval(()=>{ timeLeft--; document.getElementById("timer").textContent=`⏱️ ${timeLeft}s`;
+ if(timeLeft<=0){ clearInterval(timer); nextQuestion();}},1000);
+ const q=questions[currentQuestion];
+ document.getElementById("question-text").textContent=q.text;
+ if(q.image){ document.getElementById("question-img").src=q.image; document.getElementById("question-img").style.display='block'; }
+ else{ document.getElementById("question-img").style.display='none'; }
+ const answersDiv=document.getElementById("answers"); answersDiv.innerHTML="";
+ q.answers.forEach((answer,idx)=>{
+   const btn=document.createElement("button"); btn.textContent=answer; btn.className="answer-btn";
+   btn.onclick=()=>checkAnswer(idx); answersDiv.appendChild(btn);
+ });
+}
+
+function checkAnswer(selected){ clearInterval(timer); if(selected===questions[currentQuestion].correct){score++;} nextQuestion(); }
+
+function nextQuestion(){ currentQuestion++; if(currentQuestion<questions.length){ showQuestion(); } else{ showResults(); } }
+
+function showResults(){
+  document.getElementById("quiz-container").innerHTML=`
+    <h2>🎉 Quiz terminé !</h2>
+    <p>Votre score : ${score} / ${questions.length}</p>
+    <h3>🏆 Podium</h3>
+    <div class="podium">
+      <div>🥇 ${scores[0].name}: ${scores[0].score}</div>
+      <div>🥈 ${scores[1].name}: ${scores[1].score}</div>
+      <div>🥉 ${scores[2].name}: ${scores[2].score}</div>
+    </div>
+  `;
+}
+
+showQuestion();
+</script>
+</body>
+</html>
